@@ -1,0 +1,39 @@
+
+* {
+    --headerBackgroundColor: rgba(50,50,50,1);
+    --headerTextColor: white;
+    --headerSectionColor: rgba(70,70,70,1);
+}
+
+
+.header {
+    display: flex;
+    position: sticky;
+    background-color: var(--headerBackgroundColor);
+    color: var(--headerTextColor);
+    font-size: 2ch;
+    font-weight: bold;
+
+    width: 99vw;
+    height: fit-content;
+
+    justify-content: center;
+}
+
+.headerSection {
+    display: flex;
+    position: relative;
+    background-color: var(--headerSectionColor);
+    margin: 2px;
+    margin-left: 10px;
+}
+
+.headerTimeParent {
+    width: fit-content;
+    height: fit-content;
+}
+
+.headerBeatParent {
+    width: fit-content;
+    height: fit-content;
+}
