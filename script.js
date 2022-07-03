@@ -37,7 +37,7 @@ class Track
         this.mute = false;
         this.solo = false;
 
-        this.audioChunks = [];
+        this.audioClips = [];
     }
     _initHTMLElements(selfObject) {
         let elementIDs =["trackName_", "trackMuteButton_", "trackSoloButton_", "trackVolume_", "trackCanvas_", "trackParent_"];
@@ -61,6 +61,8 @@ class Track
         this.soloButtonElement.addEventListener("click", function(e) {
             selfObject._soloButtonHandler();
         });
+
+        this.canvasElement = document.getElementById("trackCanvas_"+this.id);
     }
 
     /** @param {boolean} val */
@@ -120,9 +122,31 @@ class Track
     addAudioClip(blob, startTime)
     {
         //take blob --> arrayBuffer --> AudioBuffer --> array
+        const obj = this;
         blob.arrayBuffer().then(function (buffer) {
             audioCtx.decodeAudioData(buffer).then(function (audioBuffer) {
-                //let arr = audioBuffer.getChannelData(0);
+
+                let arr = audioBuffer.getChannelData(0);
+
+                let averageData = [];
+                let avg = 0;
+                for (let i=0; i<arr.length; i++)
+                {
+                    avg = avg*0.99 + Math.abs(arr[i])*0.01;
+                    averageData.push(avg);
+                }
+
+                obj.audioClips.push({
+                    blob: blob,
+                    arrayBuffer: buffer,
+                    audioBuffer: audioBuffer,
+                    data: arr,
+                    averageData: averageData,
+                    startTime: startTime,
+                });
+
+
+                /*
                 let els = document.getElementsByClassName("trackCanvas");
                 let e = els[0]; //get first element
                 let bb = e.getBoundingClientRect();
@@ -141,13 +165,61 @@ class Track
                     ctx.lineTo(i, y0 - arr[i * 100] * 100);
                 }
                 ctx.stroke();
-                ctx.closePath();
+                ctx.closePath();*/
             });
         });
     }
 
-    render() {
+    render(numPixelsPerSecond = 20) {
 
+        const bb = this.canvasElement.getBoundingClientRect();
+        this.canvasElement.width = bb.width;
+        this.canvasElement.height = bb.height;
+        //const w = this.canvasElement.width;
+        //const h = this.canvasElement.height;
+        const w = bb.width;
+        const h = bb.height;
+        const ctx = this.canvasElement.getContext("2d");
+        ctx.clearRect(0, 0, w, h);
+
+        const timeToPixelMultiplier = numPixelsPerSecond;
+        const sampleRate = 48000; //TODO - get this from... somewhere..?
+        const sampleToPixelMultiplier = 1/sampleRate * timeToPixelMultiplier;
+
+        const pixelToSampleMultiplier = 1/sampleToPixelMultiplier;
+
+        for(let i=0; i<this.audioClips.length; i++)
+        {
+            const c = this.audioClips[i];
+            const arr = c.averageData;
+            const clipLengthSeconds = c.audioBuffer.duration;
+
+            const startX = Math.round(c.startTime * timeToPixelMultiplier);
+            const startY = Math.round(h/2);
+            const yMultiplier = h/2;
+
+            
+            ctx.fillStyle = "#9999FF";
+            ctx.strokeStyle = "#FF0000";
+
+            ctx.fillRect(startX, 0, clipLengthSeconds*timeToPixelMultiplier, h);
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            let yVal;
+            for (let j=0; j<clipLengthSeconds*timeToPixelMultiplier; j++)
+            {
+                if (startX + j > w)
+                {
+                    break;
+                }
+                yVal = Math.round(arr[j*pixelToSampleMultiplier] * yMultiplier) + 1;
+                ctx.moveTo(startX + j, startY + yVal )
+                ctx.lineTo(startX + j, startY - yVal );
+            }
+            ctx.stroke();
+            ctx.closePath();
+            
+        }
     }
 }
 
@@ -158,9 +230,9 @@ class DataManager {
         this.userState = 'idle';
         this.selectedTrack = new Track(trackParentElement);
         this.tracks = [this.selectedTrack, ];
+        this.bpm = 100;
         this.currentTime = 0; //in seconds
         this.currentBeat = 0;
-        this.bpm = 100;
 
         this.recordingStartTime = 0;
         this.recordingEndTime = 0;
@@ -209,6 +281,7 @@ class DataManager {
         this.tracks.push(t);
         this.selectTrack(t);
     }
+
 }
 
 
@@ -344,3 +417,15 @@ async function stopRecording() {
 const trackParentElement = document.getElementById("trackContainer");
 const dm = new DataManager();
 
+
+setInterval( update, 1000 );
+
+
+function update()
+{
+    const tracks = dm.tracks;
+    for (let i=0; i<tracks.length; i++)
+    {
+        tracks[i].render();
+    }
+}
