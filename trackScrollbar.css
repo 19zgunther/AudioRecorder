@@ -1,0 +1,27 @@
+
+
+
+.trackScrollbarContainer {
+    position: relative;
+    display: flex;
+    width: 99.9vw;
+    height: 2vh;
+    padding: 0.2vh;
+    background-color: rgba(100,100,100,1);  
+}
+.trackScrollbarContainer:hover {
+    background-color: rgba(110,110,110,1);
+}
+
+.trackScrollbarSlider {
+    position: absolute;
+    display: inline-block;
+    height: 1.75vh;
+    width: 10vw;
+    background-color: rgba(200,200,200,0.8);
+    cursor:pointer;
+}
+
+.trackScrollbarSlider:hover {
+    background-color: rgba(220,220,220,0.8);
+}

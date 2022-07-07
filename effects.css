@@ -1,0 +1,71 @@
+
+
+*{
+    --effectsWindowBackgroundColor: rgba(60,60,60,1);
+
+    --effectsListWidth: 20vw;
+    --effectsListBackgroundColor: rgba(70,70,70,0.8);
+    --effectsListBackgroundColor_hover: rgba(70,70,70,1);
+
+    --effectsListItemBackgroundColor: rgba(99, 172, 240, 0.8);
+    --effectsListItemBackgroundColor_hover: rgba(99, 172, 240, 1);
+
+}
+
+
+
+.effectsWindow{
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    width: 96vw;
+    height: 30vh;
+    padding: 2vw;
+    background-color: var(--effectsWindowBackgroundColor);
+}
+
+
+
+
+.effectsListParent {
+    position: relative;
+    display: block;
+    height: 100%;
+    width: var(--effectsListWidth);
+    background-color: var(--effectsListBackgroundColor);
+}
+.effectsListParent:hover {
+    background-color: var(--effectsListBackgroundColor_hover);
+}
+
+.effectsListTitle {
+    font-size:large;
+    color: white;
+    font-weight: bold;
+    padding: 1vmin;
+    margin: 1vmin;
+    text-align: center;
+}
+
+.effectsListItem {
+    background-color: var(--effectsListItemBackgroundColor);
+    padding: 1vmin;
+    margin: 1vmin;
+    text-align: center;
+}
+.effectsListItem:hover {
+    background-color: var(--effectsListItemBackgroundColor_hover);
+}
+
+
+.effectsParent {
+    position: relative;
+    display: block;
+    flex-grow: 1;
+    height: 100%;
+    margin-left:2vmin;
+    background-color: var(--effectsListBackgroundColor);
+}
+.effectsParent:hover{
+    background-color: var(--effectsListBackgroundColor_hover);
+}

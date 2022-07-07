@@ -30,6 +30,22 @@
     background-color: var(--trackContainerBackgroundColor);
     transition: background-color 0.15s;
 }
+.trackWriteHead {
+    z-index: 10000;
+    display: block;
+    position: absolute;
+    height: 100%;
+    width: 15px;
+    left: 400px;
+    background: linear-gradient(to right, rgba(255,255,255,0.7), rgba(255,255,255,0));
+    justify-content: center;
+    align-items: center;
+    padding:0;
+    margin: 0;
+}
+.trackWriteHead:hover {
+    background: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0));
+}
 
 .trackParent {
     background-color: red;
@@ -57,6 +73,7 @@
     transition: inherit;
     border-radius: inherit;
     padding: inherit;
+    user-select: none;
 }
 .trackHeader:hover {
     background-color: var(--trackHeaderBackgroundColorHover);
@@ -96,6 +113,7 @@
     transition: inherit;
     border-radius: inherit;
     padding: inherit;
+    cursor: pointer;
 }
 .trackButton.selected {
     background-color: var(--trackButtonSelectedBackgroundColor);
@@ -115,8 +133,8 @@
     transition: inherit;
     border-radius: inherit;
     padding: inherit;
+    cursor: pointer;
 }
-
 .trackBody {
     display: inline-block;
     position: relative;
@@ -124,13 +142,15 @@
     flex-grow: 1;
     border-radius: inherit;
     padding: inherit;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 .trackBody:hover {
     background-color: var(--trackBackgroundColorHover);
 }
 
 .trackCanvas {
-    width: 100%;
+    width: 5000px;
     height: 100px;
     border-radius: inherit;
     padding: inherit;
