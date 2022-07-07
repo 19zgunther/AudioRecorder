@@ -3,8 +3,10 @@
 
 <head>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="trackScrollbar.css">
     <link rel="stylesheet" href="track.css">
     <link rel="stylesheet" href="header.css">
+    <link rel="stylesheet" href="effects.css">
 </head>
 <body>
 
@@ -13,6 +15,16 @@
     <button onclick=stopRecording()> Stop Recording</button>
 
     <button onclick=play()> play </button>
+
+    <button onclick=addTrack()> Add Track </button>
+
+    <button onclick=zoomIn()> Zoom In  </button>
+
+    <button onclick=zoomOut()> Zoom Out  </button>
+
+    <div id="currentStateTextBox" style="color: white">
+
+    </div>
 
 
     <div class="header">
@@ -34,8 +46,37 @@
         </div>
     </div>
 
+    <div class="trackScrollbarContainer" id="trackScrollbarContainer">
+        <div class="trackScrollbarSlider" id="trackScrollbarSlider" onmousedown=scrollBarChanged(event) onmouseup=scrollBarChanged(event) onmousemove=scrollBarChanged(event) onmouseleave=scrollBarChanged(event)>
+
+        </div>
+    </div>
+
     <div class="trackContainer" id="trackContainer">
-        
+        <div class = "trackWriteHead" id="writeHeadElement" onmousedown=writeHeadChanged(event)> 
+        </div>
+    </div>
+
+    <div class="effectsWindow">
+        <div class="effectsListParent">
+            <div class="effectsListTitle">
+                Effects:
+            </div>
+            <div class="effectsListItem">
+                effect 1
+            </div>
+            <div class="effectsListItem">
+                effect 2
+            </div>
+        </div>
+        <div class="effectsParent">
+            <div class="effectSliderParent">
+                <div class="effectSliderTitle">
+                    Slider Title
+                </div>
+                <input type="range"/>
+            </div>
+        </div>
     </div>
 
 </body>

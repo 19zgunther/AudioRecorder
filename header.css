@@ -26,6 +26,7 @@
     background-color: var(--headerSectionColor);
     margin: 2px;
     margin-left: 10px;
+    user-select: none;
 }
 
 .headerTimeParent {
