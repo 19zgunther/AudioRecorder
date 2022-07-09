@@ -41,13 +41,17 @@ class Effect
 {
     constructor()
     {
-        const listItem = `
+        this.html = `
         <div class="effectsListItem">
             Gain
         </div>
         `;
     }
-    applyToArray(x = [])
+    attatchToParentElement(parentElement)
+    {
+        
+    }
+    applyEffect(x = [])
     {
         if (x.length < 1000) { return; }
         
@@ -78,6 +82,7 @@ class Effect
             }
         }
 
+        return x;
     }
 }
 
@@ -294,7 +299,7 @@ class Track
         this.audioClips.push(clip);
         this.edited = true;
     }
-    render(numPixelsPerSecond = 100, bpm = 100, sampleRate = 44100, sampleOffset = 0, selectedTrack, selectedClip) {
+    render(numPixelsPerSecond = 100, beatsPerMinute = 100, sampleRate = 44100, sampleOffset = 0, selectedTrack, selectedClip) {
 
         if (this.edited == false && (this != selectedTrack || recording == false))
         {
@@ -327,7 +332,7 @@ class Track
         this.timeToPixelMultiplier = timeToPixelMultiplier;
         this.sampleToPixelMultiplier = sampleToPixelMultiplier;
         this.pixelToSampleMultiplier = pixelToSampleMultiplier;
-        this.bpm = bpm;
+        this.beatsPerMinute = beatsPerMinute;
         this.sampleRate = sampleRate;
         this.sampleOffset = sampleOffset;
 
@@ -387,7 +392,7 @@ class Track
 
         //draw beat lines
         // beats/second * pixel/second
-        let incrementor = 1/(bpm/60) * timeToPixelMultiplier; //incrementor in pixels
+        let incrementor = 1/(beatsPerMinute/60) * timeToPixelMultiplier; //incrementor in pixels
         let beatIncrement = 1;
         while (incrementor < 40)
         {
@@ -489,7 +494,7 @@ class Track
         //Apply effects
         //TODO
         const effect = new Effect();
-        effect.applyToArray(temp);
+        //effect.applyEffect(temp);
 
 
         //Add to passed array "array"
@@ -515,7 +520,7 @@ class DataManager {
         this.selectedTrack = new Track(trackParentElement);
         this.tracks = [this.selectedTrack, ];
         this.selectedClip = null;
-        this.bpm = 100;
+        this.beatsPerMinute = 100;
         this.beatsPerMeasure = 4;
         this.currentTime = 0; //in seconds
         this.currentBeat = 0;
@@ -546,27 +551,27 @@ class DataManager {
         this._selectedTrack = track;
     }
     get selectedTrack() { return this._selectedTrack; }
-    set bpm(newBpm) {
-        if (isNaN(newBpm)) { return; }
-        this._bpm = newBpm;
-        this._bps = newBpm/60;
+    set beatsPerMinute(newbeatsPerMinute) {
+        if (isNaN(newbeatsPerMinute)) { return; }
+        this._beatsPerMinute = newbeatsPerMinute;
+        this._beatsPerSecond = newbeatsPerMinute/60;
         // beats/minute -->  (beats/minute)/60
-        this._currentBeat = this.currentTime * this.bpm/60;
+        this._currentBeat = this.currentTime * this.beatsPerMinute/60;
     }
-    get bpm() { return this._bpm; }
-    get bps() {
-        return this._bps;
+    get beatsPerMinute() { return this._beatsPerMinute; }
+    get beatsPerSecond() {
+        return this._beatsPerSecond;
     }
     set currentBeat(newBeat) {
         if (isNaN(newBeat)) { return; }
         this._currentBeat = newBeat;
-        this._currentTime = this._currentBeat * (1/(this.bpm/60));
+        this._currentTime = this._currentBeat * (1/(this.beatsPerMinute/60));
     }
     get currentBeat() { return this._currentBeat; }
     set currentTime(newTime) {
         if (isNaN(newTime)) { return;}
         this._currentTime = newTime;
-        this._currentBeat = this._currentTime * this.bpm/60;
+        this._currentBeat = this._currentTime * this.beatsPerMinute/60;
     }
     get currentTime() { return this._currentTime;}
 
@@ -834,7 +839,7 @@ class DataManager {
     {   
         for (let i=0; i<this.tracks.length; i++)
         {
-            this.tracks[i].render(this.timeToPixelMultiplier, this.bpm, this.sampleRate, this.sampleOffset, this.selectedTrack, this.selectedClip);
+            this.tracks[i].render(this.timeToPixelMultiplier, this.beatsPerMinute, this.sampleRate, this.sampleOffset, this.selectedTrack, this.selectedClip);
         }
     }
     refreshAllTracks()
@@ -910,6 +915,8 @@ const updateDelay = 50;
 //for horizontal scroll bar functionality
 const scrollBar_ParentElement = document.getElementById("trackScrollbarContainer");
 const scrollBar_SliderElement = document.getElementById("trackScrollbarSlider");
+const headerTimeElement = document.getElementById("headerSectionTime");
+const headerBeatElement = document.getElementById("headerSectionBeat");
 document.addEventListener("mousemove", scrollBarChanged);
 document.addEventListener("mouseup", scrollBarChanged);
 var scrollBar_mouseIsDown = false;
@@ -1193,10 +1200,12 @@ function writeHeadChanged(event = {type: "update", clientX: -1000,}, setToZero =
         let wantedPosIncludingScrollBar_pixels = wantedLeftRelativePos_pixels + scrollBarPixelOffset;
         wantedPosIncludingScrollBar_samples = wantedPosIncludingScrollBar_pixels * dm.pixelToSampleMultiplier;
     }
+
+    //This last one should always be true...
     if (wantedPosIncludingScrollBar_samples != null)
     {
         //round to nearest eigth beat
-        const eigthBeatLength_samples = (1/dm.bps) * (dm.sampleRate) / 8//sample/beat = seconds/beat * sample/second
+        const eigthBeatLength_samples = (1/dm.beatsPerSecond) * (dm.sampleRate) / 8//sample/beat = seconds/beat * sample/second
         wantedPosIncludingScrollBar_samples = Math.round(wantedPosIncludingScrollBar_samples / eigthBeatLength_samples) * eigthBeatLength_samples;
         wantedPosIncludingScrollBar_pixels = wantedPosIncludingScrollBar_samples / dm.pixelToSampleMultiplier;
 
@@ -1205,12 +1214,16 @@ function writeHeadChanged(event = {type: "update", clientX: -1000,}, setToZero =
         //remove scrollBarPixelOffset
         wantedLeftRelativePos_pixels = wantedPosIncludingScrollBar_pixels - scrollBarPixelOffset;
 
-        //saveSampleOffset...
-        //writeHeadSampleOffset = wantedLeftRelativePos_pixels * dm.pixelToSampleMultiplier;
-
         //finally, set writeHeadElement position.
         writeHeadElement.style.left = Math.round(wantedLeftRelativePos_pixels + trackBodyBB.left) + "px";
     }
+    const currentTime = (writeHeadSampleOffset / dm.sampleRate);
+    headerTimeElement.innerHTML = currentTime.toFixed(3);
+
+    const beat = currentTime * dm.beatsPerSecond;
+    const measure = Math.floor(beat / dm.beatsPerMeasure);
+    const measureBeat = beat - measure * dm.beatsPerMeasure;
+    headerBeatElement.innerHTML = measure.toFixed(0) + " : " + measureBeat.toFixed(5);
 }
 
 
